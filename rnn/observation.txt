@@ -1,0 +1,60 @@
+1-
+test3_j_w:
+
+load jason file 
+load weights
+compile 
+evalute
+predict
+
+result:
+[5.442957416254813, 0.12460732987413856]
+====================================================================
+2-
+test3_j_w:
+
+load jason file 
+compile              +++++++++++++++++++
+load weights
+compile 
+evalute
+predict
+
+result:
+[5.442957416254813, 0.12460732987413856]
+=================================================================
+3-
+test3_j_w:
+
+load jason file 
+compile            
+load weights	"remove:by_name=True"			  +++++++++++++++++++
+compile 
+evalute
+predict
+
+result:
+[5.442957416254813, 0.12460732987413856]
+=================================================================
+4-
+test2_build_w
+
+construct model again 
+load weights 
+compile 
+evalute 
+
+result:
+[0.057518007360881494, 0.9837696335078534]
+==================================================================
+5-
+test2_build_w
+
+construct model again 
+load weights 		"remove:by_name=True"			  +++++++++++++++++++
+compile 
+evalute 
+
+result:
+[0.057518007360881494, 0.9837696335078534]
+==================================================================
