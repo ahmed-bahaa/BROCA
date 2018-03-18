@@ -3,7 +3,8 @@ from sklearn  import svm
 from loader_v2 import *
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
-
+from sklearn.externals import joblib
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
@@ -38,6 +39,8 @@ def main():
         X_train,Y_train,X_test,Y_test=lo_data2()        #lo_data2(): to use loader_v2   ,,, and lo_data(): to use loader
 
         print("SVM received data successfully")
+        path="C:\\Users\\vegon\\Desktop\\BROCA\\BROCA\\svm_br"
+        os.chdir(path)
 
         print(X_train.shape)
         print(Y_train.shape)
@@ -47,19 +50,19 @@ def main():
         scaled_test=scaler.transform(X_test)
 
 
-
+        '''
         C_range = np.logspace(-2, 10, 13)
         gamma_range = np.logspace(-9, 3, 13)
-        param_grid = dict(gamma=gamma_range, C=C_range)
+        param_grid = dict(gamma=gamma_range, C=C_range )
         cv = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)
-        grid = GridSearchCV(SVC(), param_grid=param_grid, cv=cv , n_jobs=-2)
+        grid = GridSearchCV(SVC(kernel='linear'), param_grid=param_grid, cv=cv , n_jobs=-2)
         grid.fit(scaled_train,Y_train)
         print("The best parameters are %s with a score of %0.2f"
         % (grid.best_params_, grid.best_score_))
 
         '''
 
-        clf = svm.SVC(kernel='rbf',decision_function_shape='ovo'  ,gamma=.01 , C=1000000)
+        clf = svm.SVC(kernel='rbf',decision_function_shape='ovo'  ,gamma=0.01, C=1000)
         #clf = svm.SVC(kernel='rbf',decision_function_shape='ovo' ,gamma=0.01 , C=1000)
         clf.fit(scaled_train,Y_train)
         print(clf)
@@ -67,7 +70,13 @@ def main():
         print(clf.predict(scaled_test))
         print(Y_test)
         print("accuracy: ",accuracy_score(Y_test,pr))
-        '''
+        filename = 'finalized_model.sav'
+        joblib.dump(clf, filename)
+
+        for prediction, label in zip(pr, Y_test):
+            if prediction != label:
+                print('has been classified as ', prediction, 'and should be ', label) 
+
 
         print("=================================================================")
 
