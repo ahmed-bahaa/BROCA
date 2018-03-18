@@ -12,11 +12,12 @@ import matplotlib.pyplot as plt
 from keras.models import model_from_json
 from br_util import *
 from numpy import argmax
+from loader_v2 import *
 #get_ipython().magic('matplotlib inline')
 np.random.seed(12345)
 no_pers=3                                       #no of persons to collect
 
-X,Y,f,g,s=load_dataset(no_pers)
+X_train,Y_train,X_test,Y_test,f,s=lo_data2()
 in_v_dic,v_in_dic=load_dict()
 
 """
@@ -28,18 +29,20 @@ s        :   maximum number of sequences per gesture  (also it will be no. input
 in_v_dic :   index to vocab dictionary
 v_in_dic :   vocab to index dictionary
 """
-print (Y[0])
+print (Y_train[0])
 
 print("index to vocab")
 print(in_v_dic)
 
 print("vocab to index")
 print(v_in_dic)
-m=g
+m=X_train.shape[0]
 Tx=s
 Ty=1
-Yoh=preprocess_data(Y,v_in_dic,Ty)
-print(Yoh.shape)
+Yoh_train=preprocess_data(Y_train,v_in_dic,Ty)
+Yoh_test=preprocess_data(Y_test,v_in_dic,Ty)
+
+print(Yoh_train.shape)
 '''
 print(Y[1])
 print(Yoh[1])
@@ -53,9 +56,9 @@ print(Yoh[1500])
 print(argmax(Yoh[1]))                # from one hot vector to integer
 '''
 
-print("X.shape:", X.shape)
-print("Y.shape:", Y.shape)
-print("Yoh.shape:", Yoh.shape)
+print("X.shape:", X_train.shape)
+print("Y.shape:", Y_train.shape)
+print("Yoh.shape:", Yoh_train.shape)
 
 
 '''
@@ -116,8 +119,8 @@ def one_step_attention(a, s_prev):
 
 # In[8]:
 
-n_a = 512
-n_s = 1024
+n_a = 64
+n_s = 128
 post_activation_LSTM_cell = LSTM(n_s, return_state = True)
 output_layer = Dense(len(v_in_dic), activation=softmax)
 
@@ -231,18 +234,14 @@ c0 = np.zeros((m, n_s))
 # Let's now fit the model and run it for one epoch.
 
 # In[ ]:
-
-model.fit([X, s0, c0], Yoh, epochs=100, batch_size=50)
+print(X_train.shape)
+model.fit([X_train, s0, c0], Yoh_train, epochs=150, batch_size=50)
 #model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 #from keras.models import load_model
-model.save('models\\model_9.h5')
-model.save_weights('models\\model_w_9.h5')
-model_json = model.to_json()
-with open("models\\model_j_9.json", "w") as json_file:
-    json_file.write(model_json)
-np.save("models\\\model_w_9_np",model.get_weights())
-#print(model.get_weights())
+model.save('models\\model_2.h5')
+model.save_weights('models\\model_w_2.h5')
+
 '''
 model = load_model('my_model.h5')
 model.load_weights('my_model_weights.h5')
@@ -270,8 +269,13 @@ for example in EXAMPLES:
 
 
 model.summary()
+b=X_test.shape[0]
+st0 = np.zeros((b, n_s))
+ct0 = np.zeros((b, n_s))
+print(model.evaluate([X_test,st0,ct0], Yoh_test, verbose=0))
 
 
+"""
 #z=X[1000].reshape(1,s,f)
 z=X[1000:1060,:,:]
 prediction = model.predict([z,s0,c0])
@@ -302,3 +306,4 @@ print(Y[1890:1905])
 prediction = np.argmax(prediction, axis = -1)
 ou = [in_v_dic[int(i)] for i in prediction]
 print(ou)
+"""

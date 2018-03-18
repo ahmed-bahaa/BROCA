@@ -8,9 +8,12 @@ import pickle
 #import pathlib
 from keras.utils import to_categorical
 import keras.backend as K
-
+import numpy as np
+import random
+np.random.seed(12345)
 global q
 
+'''
 def load_dataset(n):
         no_persons=n
         type=['static','dynamic']
@@ -115,10 +118,11 @@ def load_dataset(n):
         print('input data shape is:',data.shape)
         print('output data shape is:',output.shape)
         return(data,output.values,no_features,no_gestures,no_sequences)
+'''
 
 
 def load_dict():
-        path = 'C:\\Users\\vegon\\Desktop\\lap'
+        path = 'C:\\Users\\vegon\\Desktop\\BROCA\\BROCA\\rnn'
         os.chdir(path)
         index_vocab_dict = np.load('dataset\\modified\\index_vocab_dict.npy').item()
         vocab_index_dict = np.load('dataset\\modified\\vocab_index_dict.npy').item()
@@ -145,7 +149,7 @@ def preprocess_data(dataset, vocab_index_dict , Ty):
     Y = dataset
 
     #Y = [string_to_int(str(t), Ty, vocab_index_dict) for t in Y]
-    Y=[vocab_index_dict[str(t[0])]  for t in Y ]
+    Y=[vocab_index_dict[str(t)]  for t in Y ]
 
     Yoh = np.array(list(map(lambda x: to_categorical(x, num_classes=len(vocab_index_dict)), Y)))
 
@@ -200,6 +204,26 @@ def int_to_string(ints, inv_vocab):
     l = [inv_vocab[i] for i in ints]
     return l
 
+
+def softmax(x, axis=1):
+    """Softmax activation function.
+    # Arguments
+        x : Tensor.
+        axis: Integer, axis along which the softmax normalization is applied.
+    # Returns
+        Tensor, output of softmax transformation.
+    # Raises
+        ValueError: In case `dim(x) == 1`.
+    """
+    ndim = K.ndim(x)
+    if ndim == 2:
+        return K.softmax(x)
+    elif ndim > 2:
+        e = K.exp(x - K.max(x, axis=axis, keepdims=True))
+        s = K.sum(e, axis=axis, keepdims=True)
+        return e / s
+    else:
+        raise ValueError('Cannot apply softmax to a tensor that is 1D')
 
 
 

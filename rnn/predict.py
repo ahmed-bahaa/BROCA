@@ -8,15 +8,14 @@ import numpy as np
 from keras.models import Sequential
 import random
 from tqdm import tqdm
-from nmt_utils import *
-import matplotlib.pyplot as plt
+from loader_v2 import *
 from br_util import *
 from numpy import argmax
 
 
 np.random.seed(12345)
-no_pers=2                                       #no of persons to collect
-X,Y,f,g,s=load_dataset(no_pers)
+no_pers=3                                       #no of persons to collect
+X_train,Y_train,X_test,Y_test,f,s=lo_data2()
 in_v_dic,v_in_dic=load_dict()
 
 """
@@ -28,17 +27,18 @@ s        :   maximum number of sequences per gesture  (also it will be no. input
 in_v_dic :   index to vocab dictionary
 v_in_dic :   vocab to index dictionary
 """
-print (Y[0])
 
 print("index to vocab")
 print(in_v_dic)
 print("vocab to index")
 print(v_in_dic)
-m=g
+m=X_train.shape[0]
 Tx=s
 Ty=1
-Yoh=preprocess_data(Y,v_in_dic,Ty)
-print(Yoh.shape)
+Yoh_train=preprocess_data(Y_train,v_in_dic,Ty)
+Yoh_test=preprocess_data(Y_test,v_in_dic,Ty)
+
+print(Yoh_train.shape)
 '''
 print(Y[1])
 print(Yoh[1])
@@ -50,14 +50,14 @@ print(Y[1500])
 print(Yoh[1500])
 
 print(argmax(Yoh[1]))                # from one hot vector to integer
-'''
+
 
 print("X.shape:", X.shape)
 print("Y.shape:", Y.shape)
 print("Yoh.shape:", Yoh.shape)
 
 
-'''
+
 index = 0
 print("Source date:", dataset[index][0])
 print("Target date:", dataset[index][1])
@@ -200,7 +200,7 @@ model = model(Tx, Ty, n_a, n_s, f, len(v_in_dic))
 
 model.summary()
 
-model.load_weights('models\\model_6.h5',by_name=True)
+model.load_weights('models\\model_2.h5',by_name=True)
 ### START CODE HERE ### (2 lines)
 opt = Adam(lr=0.005, beta_1=0.9, beta_2=0.999, decay=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
@@ -211,43 +211,21 @@ model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy
 s0 = np.zeros((m, n_s))
 c0 = np.zeros((m, n_s))
 
-model.fit([X, s0, c0], Yoh, epochs=50, batch_size=100)
+#model.fit([X, s0, c0], Yoh, epochs=50, batch_size=100)
 
 
 
-'''
-model.layers[1].states[0] = hidden_states
-model.layers[1].states[1] = cell_states
-'''
+
+print(model.evaluate([X_train,s0,c0], Yoh_train, verbose=0))
 
 
-#print(model.get_weights())
-'''
-model = load_model('my_model.h5')
-model.load_weights('my_model_weights.h5')
-model.load_weights('my_model_weights.h5', by_name=True)
-'''
+def predict_fun(z):
+        #print(model.evaluate([X,s0,c0], Yoh, verbose=0))
+        #print(z)
+        prediction = model.predict([z,s0,c0])
+        #print(prediction)
+        prediction = np.argmax(prediction, axis = -1)
+        #print(prediction)
+        ou = [in_v_dic[int(i)] for i in prediction]
 
-print(model.evaluate([X,s0,c0], Yoh, verbose=0))
-
-#z=X[1000].reshape(1,s,f)
-
-z=X[1000:1060,:,:]
-prediction = model.predict([z,s0,c0])
-
-#print(prediction)
-
-print(Y[1000:1060])
-#print(X[1])
-prediction = np.argmax(prediction, axis = -1)
-ou = [in_v_dic[int(i)] for i in prediction]
-print(ou)
-
-z=X[400:450,:,:]
-prediction = model.predict([z,s0,c0])
-
-print(Y[400:450])
-#print(X[1])
-prediction = np.argmax(prediction, axis = -1)
-ou = [in_v_dic[int(i)] for i in prediction]
-print(ou)
+        print(ou)
