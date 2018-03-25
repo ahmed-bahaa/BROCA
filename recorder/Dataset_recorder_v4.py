@@ -6,10 +6,10 @@
 # between Leap Motion and you, your company or other organization.             #
 ################################################################################
 
-#we still need:
+
 '''
-1- if hands more than 2 ignore frame
-2- comment and uncomment     w.writeheader()
+*change person number only for every person
+*open visulaizer manually
 
 '''
 
@@ -18,14 +18,10 @@
 
 #line 34 change writeheader  in case of append to False
 
-
-
-
 import Leap, sys, thread, time, csv,os
 import string
 import subprocess
-
-from Leap import ScreenTapGesture
+#from Leap import ScreenTapGesture
 import numpy
 
 
@@ -35,12 +31,8 @@ class SampleListener(Leap.Listener):
             finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
             bone_names = ['M', 'P', 'I', 'D']
             state_names = ["STATE INVALID", "STATE START","STATE END","STATE UPDATE"]
-            global fieldnames
-            global writeheaders
-            global second_iteration
-            global start_time
-            global elapsed
-            global ges_type,si,gate
+            global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person
+            person=1
             gate=True
             second_iteration = False
             writeheaders = True
@@ -224,10 +216,13 @@ class SampleListener(Leap.Listener):
                     global writeheaders
                     global second_iteration
                     global start_time
-                    global elapsed,gate
+                    global elapsed,gate,person
 
-
-                    with open("dataset/test/"+ges_type+'/p3/'+filename+".csv", 'ab')as csvfile:
+                    path="C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//"+ ges_type + "//p" + str(person) + "//"
+                    if not os.path.exists(path):
+                                    os.makedirs(path)
+                                    os.chdir(path)
+                    with open(path + filename + ".csv", 'ab')as csvfile:
                         cach_dict = {key: 0 for key in fieldnames}
                         w = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -238,170 +233,159 @@ class SampleListener(Leap.Listener):
                         frame = controller.frame()
                         #for gesture in frame.gestures():
                         gesture=frame.gestures()
-                        if (gesture[0].type == Leap.Gesture.TYPE_KEY_TAP or second_iteration):
 
-                                if(second_iteration==False):
-                                    print("START recording AFTER:")
-                                    for x in range(1,4,1):
-                                        print(x)
-                                        time.sleep(1)
-                                        if(x==3):
-                                            print ("RECORDING")
-                                    second_iteration = True
+                        if(second_iteration==False):
+                                        print("START recording AFTER:")
+                                        for x in range(1,4,1):
+                                            print(x)
+                                            time.sleep(1)
+                                            if(x==3):
+                                                print ("RECORDING")
+                                        second_iteration = True
 
-                                if (len(frame.hands) <= 2) and (len(frame.hands)!= 0):
-                                    total_speed = []
+                        if (len(frame.hands) <= 2) and (len(frame.hands)!= 0):
+                                        total_speed = []
 
-                                    # previous = controller.frame(1)
-                                    cach_dict.update({"Frame id" : str(frame.id) , "timestamp" : str(frame.timestamp) , "hands" : str(len(frame.hands)) ,
-                                                      "fingers" : str(len(frame.fingers))})
-                                    #print(cach_dict["Frame id"])
-
-
-
-
-                                    for hand in frame.hands:
-                                        # 0 for right hand and 1 for left
-                                        handType = "L" if hand.is_left else "R"
-                                        hand_x_basis = hand.basis.x_basis
-                                        hand_y_basis = hand.basis.y_basis
-                                        hand_z_basis = hand.basis.z_basis
-                                        hand_origin = hand.palm_position
-                                        hand_transform = Leap.Matrix(hand_x_basis, hand_y_basis, hand_z_basis,
-                                                                     hand_origin)
-                                        hand_transform = hand_transform.rigid_inverse()
-
-                                        cach_dict.update({handType+".hand": 1,handType+".hand.id": str(hand.id) ,handType+".hand.palm_position_x": str(hand.palm_position[0]),handType+".hand.palm_position_y": str(hand.palm_position[1]),handType+".hand.palm_position_z": str(hand.palm_position[2])})
-                                        #print hand.palm_position
-
-
-                                        # Get the hand's normal vector and direction
-                                        normal = hand.palm_normal
-                                        #print normal
-                                        direction = hand.direction
-                                        # Calculate the hand's pitch, roll, and yaw angles
-                                        cach_dict.update({handType+".pitch" : str(direction.pitch * Leap.RAD_TO_DEG) , handType+".roll" : str(normal.roll*Leap.RAD_TO_DEG) , handType+".yaw" : str(direction.yaw * Leap.RAD_TO_DEG)})
-
-
-                                    # Get arm bone
-                                        arm = hand.arm
-                                        cach_dict.update({handType+".Arm direction_x" : str(arm.direction[0]) ,  handType+".wrist position_x" : str(arm.wrist_position[0]) , handType+".elbow position_x" : str(arm.elbow_position[0]),
-                                                    handType+".Arm direction_y" : str(arm.direction[1]) ,  handType+".wrist position_y" : str(arm.wrist_position[1]) , handType+".elbow position_y" : str(arm.elbow_position[1]),
-                                                    handType+".Arm direction_z" : str(arm.direction[2]) ,  handType+".wrist position_z" : str(arm.wrist_position[2]) , handType+".elbow position_z" : str(arm.elbow_position[2]),
-                                                                             })
-                                        sphere=hand.sphere_center
-
-
-                                        cach_dict.update({handType + ".sphere_center_x": str(sphere[0]),
-                                                          handType + ".sphere_center_y": str(sphere[1]),
-                                                          handType + ".sphere_center_z": str(sphere[2])})
+                                        # previous = controller.frame(1)
+                                        cach_dict.update({"Frame id" : str(frame.id) , "timestamp" : str(frame.timestamp) , "hands" : str(len(frame.hands)) ,
+                                                          "fingers" : str(len(frame.fingers))})
+                                        #print(cach_dict["Frame id"])
 
 
 
 
+                                        for hand in frame.hands:
+                                            # 0 for right hand and 1 for left
+                                            handType = "L" if hand.is_left else "R"
+                                            hand_x_basis = hand.basis.x_basis
+                                            hand_y_basis = hand.basis.y_basis
+                                            hand_z_basis = hand.basis.z_basis
+                                            hand_origin = hand.palm_position
+                                            hand_transform = Leap.Matrix(hand_x_basis, hand_y_basis, hand_z_basis,
+                                                                         hand_origin)
+                                            hand_transform = hand_transform.rigid_inverse()
+
+                                            cach_dict.update({handType+".hand": 1,handType+".hand.id": str(hand.id) ,handType+".hand.palm_position_x": str(hand.palm_position[0]),handType+".hand.palm_position_y": str(hand.palm_position[1]),handType+".hand.palm_position_z": str(hand.palm_position[2])})
+                                            #print hand.palm_position
+
+
+                                            # Get the hand's normal vector and direction
+                                            normal = hand.palm_normal
+                                            #print normal
+                                            direction = hand.direction
+                                            # Calculate the hand's pitch, roll, and yaw angles
+                                            cach_dict.update({handType+".pitch" : str(direction.pitch * Leap.RAD_TO_DEG) , handType+".roll" : str(normal.roll*Leap.RAD_TO_DEG) , handType+".yaw" : str(direction.yaw * Leap.RAD_TO_DEG)})
+
+
+                                        # Get arm bone
+                                            arm = hand.arm
+                                            cach_dict.update({handType+".Arm direction_x" : str(arm.direction[0]) ,  handType+".wrist position_x" : str(arm.wrist_position[0]) , handType+".elbow position_x" : str(arm.elbow_position[0]),
+                                                        handType+".Arm direction_y" : str(arm.direction[1]) ,  handType+".wrist position_y" : str(arm.wrist_position[1]) , handType+".elbow position_y" : str(arm.elbow_position[1]),
+                                                        handType+".Arm direction_z" : str(arm.direction[2]) ,  handType+".wrist position_z" : str(arm.wrist_position[2]) , handType+".elbow position_z" : str(arm.elbow_position[2]),
+                                                                                 })
+                                            sphere=hand.sphere_center
+
+
+                                            cach_dict.update({handType + ".sphere_center_x": str(sphere[0]),
+                                                              handType + ".sphere_center_y": str(sphere[1]),
+                                                              handType + ".sphere_center_z": str(sphere[2])})
 
 
 
-                                        # Get fingers
-                                        j=0
-                                        prev_finger_position = 0
-                                        prev_finger_direction = 0
-                                        for finger in hand.fingers:
-                                            transformed_position = hand_transform.transform_point(finger.tip_position)
-                                            transformed_direction = hand_transform.transform_direction(finger.direction)
-                                            sp = finger.tip_velocity.magnitude
-                                            #print finger.tip_position
-                                            #print transformed_position
-                                            total_speed.append(sp)
-                                            name = str(self.finger_names[finger.type])
+                                            # Get fingers
+                                            j=0
+                                            prev_finger_position = 0
+                                            prev_finger_direction = 0
+                                            for finger in hand.fingers:
+                                                transformed_position = hand_transform.transform_point(finger.tip_position)
+                                                transformed_direction = hand_transform.transform_direction(finger.direction)
+                                                sp = finger.tip_velocity.magnitude
+                                                #print finger.tip_position
+                                                #print transformed_position
+                                                total_speed.append(sp)
+                                                name = str(self.finger_names[finger.type])
 
-                                            cach_dict.update({handType+"."+name+"_id" :  str(finger.id) , handType+"."+name+"_length" : str(finger.length)
-                                                            , handType+"."+name+"_width" : str(finger.width)})
-                                            # TTP: tip to palm
-                                            cach_dict.update({handType + "." + name + ".TTP": str(transformed_position.magnitude)})
-                                            # TNA: to normal angel
-                                            cach_dict.update({handType + "." + name + ".TNA": str(normal.angle_to(transformed_direction)*(180/3.14))})
-                                            # print normal.angle_to(transformed_direction)*(180/3.14)
+                                                cach_dict.update({handType+"."+name+"_id" :  str(finger.id) , handType+"."+name+"_length" : str(finger.length)
+                                                                , handType+"."+name+"_width" : str(finger.width)})
+                                                # TTP: tip to palm
+                                                cach_dict.update({handType + "." + name + ".TTP": str(transformed_position.magnitude)})
+                                                # TNA: to normal angel
+                                                cach_dict.update({handType + "." + name + ".TNA": str(normal.angle_to(transformed_direction)*(180/3.14))})
+                                                # print normal.angle_to(transformed_direction)*(180/3.14)
 
-                                            if (j==0):
-                                                #print name
-                                                prev_name=name
-                                                prev_finger_direction = finger.direction
-                                                j=j+1
-                                            else:
-                                                #print name
-                                                #print prev_finger_direction.angle_to(finger.direction)*(180/3.14)
-                                                cach_dict.update({handType + "." +prev_name+"_"+ name + ".ang": str(prev_finger_direction.angle_to(finger.direction)*(180/3.14))})
-                                                prev_finger_position = finger.tip_position
-                                                prev_finger_direction = finger.direction
-                                                prev_name=name
-                                                j = j + 1
-
-
+                                                if (j==0):
+                                                    #print name
+                                                    prev_name=name
+                                                    prev_finger_direction = finger.direction
+                                                    j=j+1
+                                                else:
+                                                    #print name
+                                                    #print prev_finger_direction.angle_to(finger.direction)*(180/3.14)
+                                                    cach_dict.update({handType + "." +prev_name+"_"+ name + ".ang": str(prev_finger_direction.angle_to(finger.direction)*(180/3.14))})
+                                                    prev_finger_position = finger.tip_position
+                                                    prev_finger_direction = finger.direction
+                                                    prev_name=name
+                                                    j = j + 1
 
 
 
+                                                #R.name_tip "tuple for test"  -+   R.name_tip  L.name_tip`````R.name_tip: transformed_position
+
+                                                '''
+                                                print"noraml",normal
+                                                print"position",name,transformed_position
+
+                                                #other solutions for normal to tip angels
+                                                print normal.angle_to(transformed_position)*(180/3.14)
+                                                print normal.angle_to(finger.tip_position) * (180 / 3.14)
+                                                print normal.angle_to(finger.direction) * (180 / 3.14)
+
+                                                #other solution angel between fingers
+                                                prev_finger_position=finger.tip_position
+                                                print prev_finger_position.angle_to(finger.tip_position)*(180/3.14)
+
+                                                '''
+                                                #print transformed_position.magnitude
+                                                #print  hand_origin.distance_to(finger.tip_position)     right function also
 
 
-                                            #R.name_tip "tuple for test"  -+   R.name_tip  L.name_tip`````R.name_tip: transformed_position
+                                                # Get bones
+                                                for b in range(0, 4):
+                                                    bone = finger.bone(b)
+                                                    name2=handType+"."+name+ "_" + str(self.bone_names[bone.type])
+                                                    cach_dict.update({name2+ "_s_x" : str(bone.prev_joint[0]) ,name2+ "_s_y" : str(bone.prev_joint[1]) ,name2+ "_s_z" : str(bone.prev_joint[2]) ,name2 + "_e_x" : str(bone.next_joint[0]),name2 + "_e_y" : str(bone.next_joint[1]) ,name2 + "_e_z" : str(bone.next_joint[2])  ,name2 +"_d_x" : str(bone.direction[0]),name2 +"_d_y" : str(bone.direction[1]),name2 +"_d_z" : str(bone.direction[2])})
+                                           #print(max(total_speed),total_speed)##################################################################################
 
-                                            '''
-                                            print"noraml",normal
-                                            print"position",name,transformed_position
-                                            
-                                            #other solutions for normal to tip angels
-                                            print normal.angle_to(transformed_position)*(180/3.14)
-                                            print normal.angle_to(finger.tip_position) * (180 / 3.14)
-                                            print normal.angle_to(finger.direction) * (180 / 3.14)
+                                        if not frame.hands.is_empty:
+                                            pass
 
-                                            #other solution angel between fingers
-                                            prev_finger_position=finger.tip_position
-                                            print prev_finger_position.angle_to(finger.tip_position)*(180/3.14)
-                       
-                                            '''
-                                            #print transformed_position.magnitude
-                                            #print  hand_origin.distance_to(finger.tip_position)     right function also
+                                        w.writerow(cach_dict)                               #changed
 
+                                        if ((max(total_speed)) <= 150):
+                                            if (gate):
+                                                w.writerow({})
+                                            gate=False
 
-                                            # Get bones
-                                            for b in range(0, 4):
-                                                bone = finger.bone(b)
-                                                name2=handType+"."+name+ "_" + str(self.bone_names[bone.type])
-                                                cach_dict.update({name2+ "_s_x" : str(bone.prev_joint[0]) ,name2+ "_s_y" : str(bone.prev_joint[1]) ,name2+ "_s_z" : str(bone.prev_joint[2]) ,name2 + "_e_x" : str(bone.next_joint[0]),name2 + "_e_y" : str(bone.next_joint[1]) ,name2 + "_e_z" : str(bone.next_joint[2])  ,name2 +"_d_x" : str(bone.direction[0]),name2 +"_d_y" : str(bone.direction[1]),name2 +"_d_z" : str(bone.direction[2])})
-                                       #print(max(total_speed),total_speed)##################################################################################
+                                        if ((max(total_speed))  <= 70):
 
-                                    if not frame.hands.is_empty:
-                                        pass
+                                            if(start_time==0):
+                                                start_time = time.time()
+                                                #print(start_time)
 
-                                    w.writerow(cach_dict)                               #changed
+                                            elapsed=time.time()-start_time
+                                            print("time:",elapsed)
+                                            if (elapsed >= .5):
 
-                                    if ((max(total_speed)) <= 150):
-                                        if (gate):
-                                            w.writerow({})
-                                        gate=False
+                                                sys.exit("REOCRDING FINSHED")
 
-                                    if ((max(total_speed))  <= 70):
-
-                                        if(start_time==0):
-                                            start_time = time.time()
-                                            #print(start_time)
-
-                                        elapsed=time.time()-start_time
-                                        print("time:",elapsed)
-                                        if (elapsed >= .5):
-                                            si.kill()
-                                            sys.exit("REOCRDING FINSHED")
-
-                                    if ((max(total_speed))  >= 70):
-                                        start_time=0
-                                        gate=True
+                                        if ((max(total_speed))  >= 70):
+                                            start_time=0
+                                            gate=True
 
 
-                                # if((total_speed / len(frame.hands))<=70):
+                                    # if((total_speed / len(frame.hands))<=70):
 
-                                 #       sys.exit("REOCRDING FINSHED")
-
-
+                                     #       sys.exit("REOCRDING FINSHED")
 
 
                     csvfile.close()
@@ -409,22 +393,16 @@ class SampleListener(Leap.Listener):
 
 
 
-
-
-
 def main():
             # Create a sample listener and controller
             global filename
-            global ges_type,si
+            global ges_type
             filename=raw_input("enter file name: ")
             ges_type=raw_input("static or dynamic gesture 's' or 'd' :")
             if (ges_type.lower()=="s"):
                 ges_type='static'
             else:
                 ges_type='dynamic'
-
-            si = subprocess.STARTUPINFO()
-            si =subprocess.Popen("C:\Program Files (x86)\Leap Motion\Core Services\Visualizer.exe")
 
             listener = SampleListener()
             controller = Leap.Controller()
@@ -447,39 +425,3 @@ def main():
 
 if __name__ == "__main__":
             main()
-
-
-
-
-
-
-"""
-#this part for dealing with stored data if we stored alot of hand gestures in the future:
-
-
-
-import numpy as np
-
-data= np.genfromtxt('mycsv4.csv', delimiter=',',names=True)
-lists1=np.array([list(element) for element in data])
-data2= np.genfromtxt('mycsv4.csv', delimiter=',',names=True)
-lists2=np.array([list(element) for element in data2])
-lists=np.concatenate((lists1, lists2), axis=0)
-print(lists.shape)
-
-
-
-"""
-
-'''
-#Average a finger position for the last 10 frames
-count = 0
-average = Leap.Vector()
-finger_to_average = frame.fingers[0]
-for i in range(0,9):
-    finger_from_frame = controller.frame(i).finger(finger_to_average.id)
-    if(finger_from_frame.is_valid):
-        average = average + finger_from_frame.tip_position
-        count += 1
-average = average/count
-'''
