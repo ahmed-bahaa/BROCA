@@ -22,7 +22,7 @@ import Leap, sys, thread, time, csv,os
 import string
 import subprocess
 #from Leap import ScreenTapGesture
-import numpy
+import numpy as np
 
 
 
@@ -31,7 +31,8 @@ class SampleListener(Leap.Listener):
             finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
             bone_names = ['M', 'P', 'I', 'D']
             state_names = ["STATE INVALID", "STATE START","STATE END","STATE UPDATE"]
-            global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person
+            global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person,s_l,s_r
+            s_r,s_l=np.load("factor.npy")
             person=1
             gate=True
             second_iteration = False
@@ -175,7 +176,69 @@ class SampleListener(Leap.Listener):
                           'R.Thumb_Index.ang', 'R.Index_Middle.ang', 'R.Middle_Ring.ang', 'R.Ring_Pinky.ang',
                           'L.Thumb_Index.ang', 'L.Index_Middle.ang', 'L.Middle_Ring.ang', 'L.Ring_Pinky.ang',
                           'R.sphere_center_x','R.sphere_center_y','R.sphere_center_z',
-                          'L.sphere_center_x','L.sphere_center_y','L.sphere_center_z'
+                          'L.sphere_center_x','L.sphere_center_y','L.sphere_center_z',
+                          'R_scaling_factor','L_scaling_factor','R.Thumb.TTP_sacled','R.Index.TTP_sacled','R.Middle.TTP_sacled','R.Ring.TTP_sacled','R.Pinky.TTP_sacled',
+                          'L.Thumb.TTP_sacled','L.Index.TTP_sacled','L.Middle.TTP_sacled','L.Ring.TTP_sacled','L.Pinky.TTP_sacled'
+                             , 'R.Thumb_tip_x', 'R.Thumb_tip_y', 'R.Thumb_tip_z'
+                             , 'R.Index_tip_x', 'R.Index_tip_y', 'R.Index_tip_z'
+                             , 'R.Middle_tip_x', 'R.Middle_tip_y', 'R.Middle_tip_z'
+                             , 'R.Ring_tip_x', 'R.Ring_tip_y', 'R.Ring_tip_z'
+                             , 'R.Pinky_tip_x', 'R.Pinky_tip_y', 'R.Pinky_tip_z'
+                              ,'L.Thumb_tip_x', 'L.Thumb_tip_y', 'L.Thumb_tip_z'
+                              , 'L.Index_tip_x', 'L.Index_tip_y', 'L.Index_tip_z'
+                              , 'L.Middle_tip_x', 'L.Middle_tip_y', 'L.Middle_tip_z'
+                              , 'L.Ring_tip_x', 'L.Ring_tip_y', 'L.Ring_tip_z'
+                              , 'L.Pinky_tip_x', 'L.Pinky_tip_y', 'L.Pinky_tip_z'
+
+                                , 'R.Thumb_tip_scaled_x', 'R.Thumb_tip_scaled_y', 'R.Thumb_tip_scaled_z'
+                                , 'R.Index_tip_scaled_x', 'R.Index_tip_scaled_y', 'R.Index_tip_scaled_z'
+                                , 'R.Middle_tip_scaled_x', 'R.Middle_tip_scaled_y', 'R.Middle_tip_scaled_z'
+                                , 'R.Ring_tip_scaled_x', 'R.Ring_tip_scaled_y', 'R.Ring_tip_scaled_z'
+                                , 'R.Pinky_tip_scaled_x', 'R.Pinky_tip_scaled_y', 'R.Pinky_tip_scaled_z'
+                                 ,'L.Thumb_tip_scaled_x', 'L.Thumb_tip_scaled_y', 'L.Thumb_tip_scaled_z'
+                                 , 'L.Index_tip_scaled_x', 'L.Index_tip_scaled_y', 'L.Index_tip_scaled_z'
+                                 , 'L.Middle_tip_scaled_x', 'L.Middle_tip_scaled_y', 'L.Middle_tip_scaled_z'
+                                 , 'L.Ring_tip_scaled_x', 'L.Ring_tip_scaled_y', 'L.Ring_tip_scaled_z'
+                                 , 'L.Pinky_tip_scaled_x', 'L.Pinky_tip_scaled_y', 'L.Pinky_tip_scaled_z'
+
+                                , 'R.Thumb_tip_w_x',  'R.Thumb_tip_w_y', 'R.Thumb_tip_w_z'
+                                , 'R.Index_tip_w_x', 'R.Index_tip_w_y', 'R.Index_tip_w_z'
+                                , 'R.Middle_tip_w_x', 'R.Middle_tip_w_y','R.Middle_tip_w_z'
+                                , 'R.Ring_tip_w_x',   'R.Ring_tip_w_y',  'R.Ring_tip_w_z'
+                                , 'R.Pinky_tip_w_x',  'R.Pinky_tip_w_y', 'R.Pinky_tip_w_z'
+                                 ,'L.Thumb_tip_w_x',   'L.Thumb_tip_w_y', 'L.Thumb_tip_w_z'
+                                 , 'L.Index_tip_w_x', 'L.Index_tip_w_y', 'L.Index_tip_w_z'
+                                 , 'L.Middle_tip_w_x','L.Middle_tip_w_y','L.Middle_tip_w_z'
+                                 , 'L.Ring_tip_w_x',  'L.Ring_tip_w_y',  'L.Ring_tip_w_z'
+                                 , 'L.Pinky_tip_w_x', 'L.Pinky_tip_w_y', 'L.Pinky_tip_w_z',
+                                 "L.hand direction_x","L.hand direction_y","L.hand direction_z",
+                                 "R.hand direction_x","R.hand direction_y","R.hand direction_z",
+                                 "L.normal direction_x","L.normal direction_y","L.normal direction_z",
+                                 "R.normal direction_x","R.normal direction_y","R.normal direction_z",
+                                'R.Thumb.THA', 'R.Index.THA', 'R.Middle.THA', 'R.Ring.THA', 'R.Pinky.THA', 'L.Thumb.THA',
+                                'L.Index.THA', 'L.Middle.THA', 'L.Ring.THA', 'L.Pinky.THA',
+
+                                 'R.Thumb.transformed_direction_x', 'R.Thumb.transformed_direction_y', 'R.Thumb.transformed_direction_z'
+                                , 'R.Index.transformed_direction_x', 'R.Index.transformed_direction_y', 'R.Index.transformed_direction_z'
+                                , 'R.Middle.transformed_direction_x', 'R.Middle.transformed_direction_y', 'R.Middle.transformed_direction_z'
+                                , 'R.Ring.transformed_direction_x', 'R.Ring.transformed_direction_y', 'R.Ring.transformed_direction_z'
+                                , 'R.Pinky.transformed_direction_x', 'R.Pinky.transformed_direction_y', 'R.Pinky.transformed_direction_z'
+                                 ,'L.Thumb.transformed_direction_x', 'L.Thumb.transformed_direction_y', 'L.Thumb.transformed_direction_z'
+                                 , 'L.Index.transformed_direction_x', 'L.Index.transformed_direction_y', 'L.Index.transformed_direction_z'
+                                 , 'L.Middle.transformed_direction_x', 'L.Middle.transformed_direction_y', 'L.Middle.transformed_direction_z'
+                                 , 'L.Ring.transformed_direction_x', 'L.Ring.transformed_direction_y', 'L.Ring.transformed_direction_z'
+                                 , 'L.Pinky.transformed_direction_x', 'L.Pinky.transformed_direction_y', 'L.Pinky.transformed_direction_z'
+
+                                , 'R.Thumb.direction_x',   'R.Thumb.direction_y',  'R.Thumb.direction_z'
+                                , 'R.Index.direction_x',   'R.Index.direction_y',  'R.Index.direction_z'
+                                , 'R.Middle.direction_x',  'R.Middle.direction_y', 'R.Middle.direction_z'
+                                , 'R.Ring.direction_x',    'R.Ring.direction_y',   'R.Ring.direction_z'
+                                , 'R.Pinky.direction_x',   'R.Pinky.direction_y',  'R.Pinky.direction_z'
+                                 ,'L.Thumb.direction_x',   'L.Thumb.direction_y',  'L.Thumb.direction_z'
+                                 , 'L.Index.direction_x',  'L.Index.direction_y',  'L.Index.direction_z'
+                                 , 'L.Middle.direction_x', 'L.Middle.direction_y', 'L.Middle.direction_z'
+                                 , 'L.Ring.direction_x',   'L.Ring.direction_y',   'L.Ring.direction_z'
+                                 , 'L.Pinky.direction_x',   'L.Pinky.direction_y',  'L.Pinky.direction_z'
 
                           ]
 
@@ -216,7 +279,7 @@ class SampleListener(Leap.Listener):
                     global writeheaders
                     global second_iteration
                     global start_time
-                    global elapsed,gate,person
+                    global elapsed,gate,person,s_r,s_l
 
                     path="C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//"+ ges_type + "//p" + str(person) + "//"
                     if not os.path.exists(path):
@@ -271,8 +334,13 @@ class SampleListener(Leap.Listener):
 
                                             # Get the hand's normal vector and direction
                                             normal = hand.palm_normal
+                                            cach_dict.update({handType+".normal direction_x" : str(normal[0]) , handType+".normal direction_y" : str(normal[1])
+                                            ,handType+".normal direction_z" : str(normal[2]) })
                                             #print normal
                                             direction = hand.direction
+                                            cach_dict.update({handType+".hand direction_x" : str(direction[0]) , handType+".hand direction_y" : str(direction[1])
+                                            ,handType+".hand direction_z" : str(direction[2]) })
+
                                             # Calculate the hand's pitch, roll, and yaw angles
                                             cach_dict.update({handType+".pitch" : str(direction.pitch * Leap.RAD_TO_DEG) , handType+".roll" : str(normal.roll*Leap.RAD_TO_DEG) , handType+".yaw" : str(direction.yaw * Leap.RAD_TO_DEG)})
 
@@ -291,11 +359,14 @@ class SampleListener(Leap.Listener):
                                                               handType + ".sphere_center_z": str(sphere[2])})
 
 
+                                            cach_dict.update({ 'R_scaling_factor': str(s_r),'L_scaling_factor': str(s_l) })
 
                                             # Get fingers
                                             j=0
                                             prev_finger_position = 0
                                             prev_finger_direction = 0
+
+
                                             for finger in hand.fingers:
                                                 transformed_position = hand_transform.transform_point(finger.tip_position)
                                                 transformed_direction = hand_transform.transform_direction(finger.direction)
@@ -307,11 +378,40 @@ class SampleListener(Leap.Listener):
 
                                                 cach_dict.update({handType+"."+name+"_id" :  str(finger.id) , handType+"."+name+"_length" : str(finger.length)
                                                                 , handType+"."+name+"_width" : str(finger.width)})
+                                                #without transformation
+                                                cach_dict.update({handType+"."+name+"_tip_w_x" : str(finger.tip_position[0]) ,  handType+"."+name+"_tip_w_y" : str(finger.tip_position[1]) ,
+                                                 handType+"."+name+"_tip_w_z" : str(finger.tip_position[2]) })
+
+                                                cach_dict.update({handType+"."+name+"_tip_x" : str(transformed_position[0]) ,  handType+"."+name+"_tip_y" : str(transformed_position[1]) ,
+                                                 handType+"."+name+"_tip_z" : str(transformed_position[2]) })
+
+                                                 #scaling x ,y and z with range -1:1
+                                                if(handType=="R"):
+                                                 cach_dict.update({handType+"."+name+"_tip_scaled_x" : str(transformed_position[0]/s_r) ,  handType+"."+name+"_tip_scaled_y" : str(transformed_position[1]/s_r) ,
+                                                  handType+"."+name+"_tip_scaled_z" : str(transformed_position[2]/s_r) })
+                                                else:
+                                                 cach_dict.update({handType+"."+name+"_tip_scaled_x" : str(transformed_position[0]/s_l) ,  handType+"."+name+"_tip_scaled_y" : str(transformed_position[1]/s_l) ,
+                                                  handType+"."+name+"_tip_scaled_z" : str(transformed_position[2]/s_l) })
+
                                                 # TTP: tip to palm
                                                 cach_dict.update({handType + "." + name + ".TTP": str(transformed_position.magnitude)})
+                                                if(handType=="R"):
+                                                    cach_dict.update({handType + "." + name + ".TTP_sacled": str(transformed_position.magnitude/s_r)})
+                                                else:
+                                                    cach_dict.update({handType + "." + name + ".TTP_sacled": str(transformed_position.magnitude/s_l)})
                                                 # TNA: to normal angel
                                                 cach_dict.update({handType + "." + name + ".TNA": str(normal.angle_to(transformed_direction)*(180/3.14))})
                                                 # print normal.angle_to(transformed_direction)*(180/3.14)
+                                                #THA: tip to hand angel
+                                                cach_dict.update({handType + "." + name + ".THA": str(direction.angle_to(transformed_direction)*(180/3.14))})
+
+                                                cach_dict.update({handType + "." + name + ".transformed_direction_x": str(transformed_direction[0]),
+                                                                    handType + "." + name + ".transformed_direction_y": str(transformed_direction[1]),
+                                                                    handType + "." + name + ".transformed_direction_z": str(transformed_direction[2])})
+
+                                                cach_dict.update({handType + "." + name + ".direction_x": str(finger.direction[0]),
+                                                                    handType + "." + name + ".direction_y": str(finger.direction[1]),
+                                                                    handType + "." + name + ".direction_z": str(finger.direction[2])})
 
                                                 if (j==0):
                                                     #print name
@@ -353,8 +453,9 @@ class SampleListener(Leap.Listener):
                                                 for b in range(0, 4):
                                                     bone = finger.bone(b)
                                                     name2=handType+"."+name+ "_" + str(self.bone_names[bone.type])
-                                                    cach_dict.update({name2+ "_s_x" : str(bone.prev_joint[0]) ,name2+ "_s_y" : str(bone.prev_joint[1]) ,name2+ "_s_z" : str(bone.prev_joint[2]) ,name2 + "_e_x" : str(bone.next_joint[0]),name2 + "_e_y" : str(bone.next_joint[1]) ,name2 + "_e_z" : str(bone.next_joint[2])  ,name2 +"_d_x" : str(bone.direction[0]),name2 +"_d_y" : str(bone.direction[1]),name2 +"_d_z" : str(bone.direction[2])})
-                                           #print(max(total_speed),total_speed)##################################################################################
+                                                    cach_dict.update({name2+ "_s_x" : str(bone.prev_joint[0]) ,name2+ "_s_y" : str(bone.prev_joint[1]) ,name2+ "_s_z" : str(bone.prev_joint[2]) ,name2 + "_e_x" : str(bone.next_joint[0]),name2 + "_e_y" : str(bone.next_joint[1]) ,
+                                                    name2 + "_e_z" : str(bone.next_joint[2])  ,name2 +"_d_x" : str(bone.direction[0]),name2 +"_d_y" : str(bone.direction[1]),name2 +"_d_z" : str(bone.direction[2])})
+
 
                                         if not frame.hands.is_empty:
                                             pass

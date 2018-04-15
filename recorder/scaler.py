@@ -268,8 +268,10 @@ class SampleListener(Leap.Listener):
 
                                             if (handType=="R"):
                                                 r_s=r_s + s
+                                                
                                             if (handType=="L"):
                                                 l_s=l_s + s
+
 
 
 
@@ -278,7 +280,7 @@ class SampleListener(Leap.Listener):
 
                                                    print(l_s/100)
                                                    print(r_s/100)
-                                                   z=np.array(((r_s/100)+(l_s/100))/2)
+                                                   z=np.array(((r_s/100),(l_s/100)))
                                                    print(z)
 
 
