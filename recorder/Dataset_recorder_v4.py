@@ -32,13 +32,13 @@ class SampleListener(Leap.Listener):
             bone_names = ['M', 'P', 'I', 'D']
             state_names = ["STATE INVALID", "STATE START","STATE END","STATE UPDATE"]
             global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person,s_l,s_r
-            s_r,s_l=np.load("factor.npy")
             person=1
             gate=True
             second_iteration = False
             writeheaders = True
             elapsed = 0
             start_time = 0
+            s_r,s_l=np.load("C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//static//p" + str(person) + "//factor.npy")
             fieldnames = ['Frame id', 'timestamp', 'hands', 'fingers'
                     , 'L.hand', 'L.hand.id', 'L.hand.palm_position_x', 'L.hand.palm_position_y',
                               'L.hand.palm_position_z'
