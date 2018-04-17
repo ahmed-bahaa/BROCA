@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 # Copyright (C) 2012-2016 Leap Motion, Inc. All rights reserved.               #
 # Leap Motion proprietary and confidential. Not for distribution.              #
@@ -23,6 +24,8 @@ import string
 import subprocess
 #from Leap import ScreenTapGesture
 import numpy as np
+import cv2
+from threading import Thread
 
 
 
@@ -31,9 +34,12 @@ class SampleListener(Leap.Listener):
             finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
             bone_names = ['M', 'P', 'I', 'D']
             state_names = ["STATE INVALID", "STATE START","STATE END","STATE UPDATE"]
-            global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person,s_l,s_r
+            global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person,s_l,s_r ,finished ,cam_fin,cam_start
             person=1
             gate=True
+            finished = False
+            cam_start=False
+            cam_fin = False
             second_iteration = False
             writeheaders = True
             elapsed = 0
@@ -239,7 +245,7 @@ class SampleListener(Leap.Listener):
                                  , 'L.Middle.direction_x', 'L.Middle.direction_y', 'L.Middle.direction_z'
                                  , 'L.Ring.direction_x',   'L.Ring.direction_y',   'L.Ring.direction_z'
                                  , 'L.Pinky.direction_x',   'L.Pinky.direction_y',  'L.Pinky.direction_z'
-
+                                 , 'R.sphere_radius',       'L.sphere_radius'
                           ]
 
 
@@ -279,7 +285,7 @@ class SampleListener(Leap.Listener):
                     global writeheaders
                     global second_iteration
                     global start_time
-                    global elapsed,gate,person,s_r,s_l
+                    global elapsed,gate,person,s_r,s_l , finished , cam_fin ,cam_start
 
                     path="C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//"+ ges_type + "//p" + str(person) + "//"
                     if not os.path.exists(path):
@@ -300,10 +306,16 @@ class SampleListener(Leap.Listener):
                         if(second_iteration==False):
                                         print("START recording AFTER:")
                                         for x in range(1,4,1):
-                                            print(x)
                                             time.sleep(1)
                                             if(x==3):
-                                                print ("RECORDING")
+                                                t=Thread(target=func_to_be_threaded,args=(path,filename))
+                                                t.start()
+                                                while(1):
+                                                    if cam_start:
+                                                        break
+                                                print ("Leap_RECORDING")
+                                                print u"ابدأ"
+                                            print(x)
                                         second_iteration = True
 
                         if (len(frame.hands) <= 2) and (len(frame.hands)!= 0):
@@ -358,6 +370,7 @@ class SampleListener(Leap.Listener):
                                                               handType + ".sphere_center_y": str(sphere[1]),
                                                               handType + ".sphere_center_z": str(sphere[2])})
 
+                                            cach_dict.update({ handType + ".sphere_radius": str(hand.sphere_radius) })
 
                                             cach_dict.update({ 'R_scaling_factor': str(s_r),'L_scaling_factor': str(s_l) })
 
@@ -467,7 +480,7 @@ class SampleListener(Leap.Listener):
                                                 w.writerow({})
                                             gate=False
 
-                                        if ((max(total_speed))  <= 70):
+                                        if ((max(total_speed))  <= 120):
 
                                             if(start_time==0):
                                                 start_time = time.time()
@@ -476,10 +489,14 @@ class SampleListener(Leap.Listener):
                                             elapsed=time.time()-start_time
                                             print("time:",elapsed)
                                             if (elapsed >= .5):
+                                                finished= True
+                                                print("Leap oFF")
+                                                time.sleep(1)
+                                                if cam_fin:
+                                                    csvfile.close()
+                                                    sys.exit("REOCRDING FINSHED")
 
-                                                sys.exit("REOCRDING FINSHED")
-
-                                        if ((max(total_speed))  >= 70):
+                                        if ((max(total_speed))  >= 120):
                                             start_time=0
                                             gate=True
 
@@ -492,6 +509,67 @@ class SampleListener(Leap.Listener):
                     csvfile.close()
 
 
+
+def func_to_be_threaded(p , f):
+        global finished ,cam_fin ,cam_start
+        FILE_OUTPUT = p+f+".avi"
+
+        # Checks and deletes the output file
+        # You cant have a existing file or it will through an error
+        if os.path.isfile(FILE_OUTPUT):
+            os.remove(FILE_OUTPUT)
+
+        # Playing video from file:
+        # cap = cv2.VideoCapture('vtest.avi')
+        # Capturing video from webcam:
+        cap = cv2.VideoCapture(1)
+
+        currentFrame = 0
+
+        # Get current width of frame
+        width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)   # float
+        # Get current height of frame
+        height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT) # float
+
+
+        # Define the codec and create VideoWriter object
+        fourcc = cv2.VideoWriter_fourcc(*'X264')
+        #cv2.cv.CV_FOURCC(*'XVID')
+
+        out = cv2.VideoWriter(FILE_OUTPUT,fourcc, 13.0, (int(width),int(height)))
+
+        # while(True):
+        print ("Camera_RECORDING")
+        while(cap.isOpened()):
+            # Capture frame-by-frame
+            ret, frame = cap.read()
+
+            cam_start= True
+            if ret == True:
+                # Handles the mirroring of the current frame
+                frame = cv2.flip(frame,1)
+
+                # Saves for video
+                out.write(frame)
+
+                # Display the resulting frame
+                cv2.imshow('frame',frame)
+            else:
+                break
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+            if finished:
+                break
+
+            # To stop duplicate images
+            currentFrame += 1
+
+        # When everything done, release the capture
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
+        print("camera oFF")
+        cam_fin=True
 
 
 def main():
