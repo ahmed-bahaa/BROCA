@@ -35,7 +35,7 @@ class SampleListener(Leap.Listener):
             bone_names = ['M', 'P', 'I', 'D']
             state_names = ["STATE INVALID", "STATE START","STATE END","STATE UPDATE"]
             global fieldnames , writeheaders , second_iteration , start_time , elapsed , ges_type , si , gate ,person,s_l,s_r ,finished ,cam_fin,cam_start
-            person=1
+            person=8
             gate=True
             finished = False
             cam_start=False
@@ -44,7 +44,9 @@ class SampleListener(Leap.Listener):
             writeheaders = True
             elapsed = 0
             start_time = 0
-            s_r,s_l=np.load("C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//static//p" + str(person) + "//factor.npy")
+            org_path = os.getcwd()
+            req_path = org_path + "//dataset//original//static//p" + str(person) + "//factor.npy"
+            s_r,s_l=np.load(req_path)
             fieldnames = ['Frame id', 'timestamp', 'hands', 'fingers'
                     , 'L.hand', 'L.hand.id', 'L.hand.palm_position_x', 'L.hand.palm_position_y',
                               'L.hand.palm_position_z'
@@ -245,7 +247,8 @@ class SampleListener(Leap.Listener):
                                  , 'L.Middle.direction_x', 'L.Middle.direction_y', 'L.Middle.direction_z'
                                  , 'L.Ring.direction_x',   'L.Ring.direction_y',   'L.Ring.direction_z'
                                  , 'L.Pinky.direction_x',   'L.Pinky.direction_y',  'L.Pinky.direction_z'
-                                 , 'R.sphere_radius',       'L.sphere_radius'
+                                 , 'R.sphere_radius',       'L.sphere_radius' ,'R_speed','L_speed',
+                                 'palms_dis','Thumb_dis','Index_dis','Middle_dis','Ring_dis','Pinky_dis'
                           ]
 
 
@@ -286,8 +289,8 @@ class SampleListener(Leap.Listener):
                     global second_iteration
                     global start_time
                     global elapsed,gate,person,s_r,s_l , finished , cam_fin ,cam_start
-
-                    path="C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//"+ ges_type + "//p" + str(person) + "//"
+                    org_path = os.getcwd()
+                    path= org_path + "//dataset//original//"+ ges_type + "//p" + str(person) + "//"
                     if not os.path.exists(path):
                                     os.makedirs(path)
                                     os.chdir(path)
@@ -319,7 +322,21 @@ class SampleListener(Leap.Listener):
                                         second_iteration = True
 
                         if (len(frame.hands) <= 2) and (len(frame.hands)!= 0):
-                                        total_speed = []
+                                        R_speed = []
+                                        L_speed = []
+                                        total_speed=[]
+                                        R_palm=Leap.Vector(0,0,0)
+                                        R_Thumb=Leap.Vector(0,0,0)
+                                        R_Index=Leap.Vector(0,0,0)
+                                        R_Middle=Leap.Vector(0,0,0)
+                                        R_Ring=Leap.Vector(0,0,0)
+                                        R_Pinky=Leap.Vector(0,0,0)
+                                        L_palm=Leap.Vector(0,0,0)
+                                        L_Thumb=Leap.Vector(0,0,0)
+                                        L_Index=Leap.Vector(0,0,0)
+                                        L_Middle=Leap.Vector(0,0,0)
+                                        L_Ring=Leap.Vector(0,0,0)
+                                        L_Pinky=Leap.Vector(0,0,0)
 
                                         # previous = controller.frame(1)
                                         cach_dict.update({"Frame id" : str(frame.id) , "timestamp" : str(frame.timestamp) , "hands" : str(len(frame.hands)) ,
@@ -386,6 +403,24 @@ class SampleListener(Leap.Listener):
                                                 sp = finger.tip_velocity.magnitude
                                                 #print finger.tip_position
                                                 #print transformed_position
+
+                                                if(handType=="R"):
+                                                    R_speed.append(sp)
+                                                    R_palm=hand.palm_position
+                                                    R_Thumb=hand.fingers[0].tip_position
+                                                    R_Index=hand.fingers[1].tip_position
+                                                    R_Middle=hand.fingers[2].tip_position
+                                                    R_Ring=hand.fingers[3].tip_position
+                                                    R_Pinky=hand.fingers[4].tip_position
+                                                else:
+                                                    L_speed.append(sp)
+                                                    L_palm=hand.palm_position
+                                                    L_Thumb=hand.fingers[0].tip_position
+                                                    L_Index=hand.fingers[1].tip_position
+                                                    L_Middle=hand.fingers[2].tip_position
+                                                    L_Ring=hand.fingers[3].tip_position
+                                                    L_Pinky=hand.fingers[4].tip_position
+
                                                 total_speed.append(sp)
                                                 name = str(self.finger_names[finger.type])
 
@@ -468,7 +503,20 @@ class SampleListener(Leap.Listener):
                                                     name2=handType+"."+name+ "_" + str(self.bone_names[bone.type])
                                                     cach_dict.update({name2+ "_s_x" : str(bone.prev_joint[0]) ,name2+ "_s_y" : str(bone.prev_joint[1]) ,name2+ "_s_z" : str(bone.prev_joint[2]) ,name2 + "_e_x" : str(bone.next_joint[0]),name2 + "_e_y" : str(bone.next_joint[1]) ,
                                                     name2 + "_e_z" : str(bone.next_joint[2])  ,name2 +"_d_x" : str(bone.direction[0]),name2 +"_d_y" : str(bone.direction[1]),name2 +"_d_z" : str(bone.direction[2])})
+                                            if handType == 'R':
+                                                cach_dict.update({"R_speed": str(max(R_speed)) })
+                                            else:
+                                                cach_dict.update({"L_speed": str(max(L_speed)) })
 
+
+                                        if (len(frame.hands) < 2):
+                                            cach_dict.update({'palms_dis':str(1000000),'Thumb_dis':str(1000000),'Index_dis':str(1000000),
+                                            'Middle_dis':str(1000000),'Ring_dis':str(1000000),'Pinky_dis':str(1000000)})
+                                        else:
+                                            cach_dict.update({'palms_dis':str(R_palm.distance_to(L_palm)),'Thumb_dis':str(R_Thumb.distance_to(L_Thumb)),
+                                            'Index_dis':str(R_Index.distance_to(L_Index)),
+                                            'Middle_dis':str(R_Middle.distance_to(L_Middle)),'Ring_dis':str(R_Ring.distance_to(L_Ring)),
+                                            'Pinky_dis':str(R_Pinky.distance_to(L_Pinky))})
 
                                         if not frame.hands.is_empty:
                                             pass
@@ -488,7 +536,7 @@ class SampleListener(Leap.Listener):
 
                                             elapsed=time.time()-start_time
                                             print("time:",elapsed)
-                                            if (elapsed >= .5):
+                                            if (elapsed >=0.5 ):
                                                 finished= True
                                                 print("Leap oFF")
                                                 time.sleep(1)
@@ -536,7 +584,7 @@ def func_to_be_threaded(p , f):
         fourcc = cv2.VideoWriter_fourcc(*'X264')
         #cv2.cv.CV_FOURCC(*'XVID')
 
-        out = cv2.VideoWriter(FILE_OUTPUT,fourcc, 13.0, (int(width),int(height)))
+        out = cv2.VideoWriter(FILE_OUTPUT,fourcc, 20.0, (int(width),int(height)))
 
         # while(True):
         print ("Camera_RECORDING")

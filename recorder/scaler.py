@@ -32,7 +32,7 @@ class SampleListener(Leap.Listener):
             global fieldnames , writeheaders , second_iteration , start_time,count ,person , l_s , r_s
             l_s=0
             r_s=0
-            person=1
+            person=8
             gate=True
             second_iteration = False
             writeheaders = True
@@ -268,7 +268,7 @@ class SampleListener(Leap.Listener):
 
                                             if (handType=="R"):
                                                 r_s=r_s + s
-                                                
+
                                             if (handType=="L"):
                                                 l_s=l_s + s
 
@@ -283,18 +283,19 @@ class SampleListener(Leap.Listener):
                                                    z=np.array(((r_s/100),(l_s/100)))
                                                    print(z)
 
+                                                   org_path= os.getcwd()
+                                                   req_path=org_path+"\\dataset\\original\\static\\p" + str(person) + "\\"
 
-                                                   path="C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//static//p" + str(person) + "//"
-                                                   if not os.path.exists(path):
-                                                          os.makedirs(path)
-                                                          os.chdir(path)
+                                                   if not os.path.exists(req_path):
+                                                          os.makedirs(req_path)
+                                                          os.chdir(req_path)
                                                    np.save(filename +'.npy', z)
-                                                   path="C://Users//vegon//Desktop//BROCA//BROCA//recorder//dataset//original//dynamic//p" + str(person) + "//"
-                                                   if not os.path.exists(path):
-                                                          os.makedirs(path)
-                                                          os.chdir(path)
+                                                   req_path=org_path+"\\dataset\\original\\dynamic\\p" + str(person) + "\\"
+                                                   if not os.path.exists(req_path):
+                                                          os.makedirs(req_path)
+                                                          os.chdir(req_path)
                                                    np.save(filename +'.npy', z)
-
+                                                   os.chdir(org_path)
                                                    sys.exit("REOCRDING FINSHED")
 
                                         count=count+1

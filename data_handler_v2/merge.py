@@ -8,16 +8,17 @@ import pandas as pd
 
 
 global q
-no_persons=2
+no_persons=5
 type=['static','dynamic']
 no_gestures=0
 no_sequences=0
 no_features=0
 q=0
 # for x
+org_path = os.getcwd()
+req_path = org_path + "\\dataset\\modified\\"
 
-path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\'
-os.chdir(path)
+os.chdir(req_path)
 with open('parameters.csv', "rt") as f:
     reader = list(csv.reader(f))[0]
     no_gestures  = int(reader[0])
@@ -34,9 +35,9 @@ for typ in type:
     if (typ=="static"):
         for person in range(1,no_persons+1):
             print("person:",person)
-            path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\'+typ+'\\p'+str(person)
+            req_path = org_path + "\\dataset\\modified\\"+typ+"\\p"+str(person)
             extension = 'csv'
-            os.chdir(path)
+            os.chdir(req_path)
             result = [i for i in glob.glob('*.{}'.format(extension))]
             for name in result:
 
@@ -56,9 +57,9 @@ for typ in type:
 
         for person in range(1,no_persons+1):
             print("person:",person)
-            path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\'+typ+'\\p'+str(person)
+            req_path = org_path + "\\dataset\\modified\\"+typ+"\\p"+str(person)
             extension = 'csv'
-            os.chdir(path)
+            os.chdir(req_path)
             result = [i for i in glob.glob('*.{}'.format(extension))]
             for name in result:
 
@@ -98,9 +99,9 @@ for typ in type:
     for person in range(1,no_persons+1):
 
             print("person:",person)
-            path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\'+typ+'\\classification\\p'+str(person)
+            req_path = org_path + "\\dataset\\modified\\"+typ+"\\classification\\p"+str(person)
             extension = 'csv'
-            os.chdir(path)
+            os.chdir(req_path)
             result = [i for i in glob.glob('*.{}'.format(extension))]
             for name in result:
 
@@ -110,6 +111,7 @@ for typ in type:
 
 print('input data shape is:',data.shape)
 print('output data shape is:',output.shape)
+os.chdir(org_path)
 
 
 
@@ -117,5 +119,3 @@ print('output data shape is:',output.shape)
 #os.chdir(path)
 #np.savetxt("output.csv", output, delimiter=",")
 #np.savetxt("data.csv", data, delimiter=",")            raise ab error
-
-

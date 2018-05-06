@@ -7,20 +7,23 @@ import pandas as pd
 global L
 L=5
 
-no_persons=3
+no_persons=8
 type=['static','dynamic']
 no_gestures=0
 no_sequences=0
 no_features=0
+no_dynamic_files=0
+org_path = os.getcwd()
 
 for typ in type:
 
     if (typ=="static"):
         for person in range(1,no_persons+1):
             print("person:",person)
-            path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\orginial\\'+typ+'\\p'+str(person)
+
+            req_path = org_path + "\\dataset\\original\\"+typ+"\\p"+str(person)+"\\"
             extension = 'csv'
-            os.chdir(path)
+            os.chdir(req_path)
             result = [i for i in glob.glob('*.{}'.format(extension))]
             y=pd.DataFrame()
             for name in result:
@@ -62,21 +65,22 @@ for typ in type:
 
                 #print (s.shape[1])
 
-                path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\' + typ + '\\p' + str(person)
 
-                if not os.path.exists(path):
-                    os.makedirs(path)
+                req_path = org_path + "\\dataset\\modified\\"+typ+"\\p"+str(person)
+                if not os.path.exists(req_path):
+                    os.makedirs(req_path)
 
-                os.chdir(path)
-
+                os.chdir(req_path)
+                if(np.isinf(s).sum().sum()>0):
+                    print("heeeeeeeeeeeeeeeeeeeeere")
                 #s.to_csv('p'+str(person)+'\\'+name, sep=',', index=True, header=True)
                 s.to_csv(name, sep=',', index=True, header=True)
 
-                path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\' + typ + '\\classification\\p' + str(person)
+                req_path = org_path + "\\dataset\\modified\\"+typ+"\\classification\\p"+str(person)
 
-                if not os.path.exists(path):
-                    os.makedirs(path)
-                os.chdir(path)
+                if not os.path.exists(req_path):
+                    os.makedirs(req_path)
+                os.chdir(req_path)
                 n=s.shape[1]
                 cls=name.split('_')[0]
 
@@ -88,8 +92,8 @@ for typ in type:
                     wr = csv.writer(fp, dialect='excel')
                     for z in range (n):
                         wr.writerow([cls])
-                path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\orginial\\' + typ + '\\p' + str(person)
-                os.chdir(path)
+                req_path = org_path + "\\dataset\\orginial\\"+typ+"\\p"+str(person)
+                os.chdir(req_path)
 
     #dynamic gesture handling
     else:
@@ -99,13 +103,14 @@ for typ in type:
         for person in range(1,no_persons+1):
             print("person:",person)
 
-            path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\orginial\\'+typ+'\\p'+str(person)
+            req_path = org_path + "\\dataset\\original\\"+typ+"\\p"+str(person)
             extension = 'csv'
-            os.chdir(path)
+            os.chdir(req_path)
             result = [i for i in glob.glob('*.{}'.format(extension))]
             y=pd.DataFrame()
             for name in result:
-
+                print name
+                no_dynamic_files+=1
                 df = pd.read_csv(name)
                 df = df.drop(df.columns[[0,1,4,5,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,216
                                          ,217,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247]], axis=1)
@@ -117,11 +122,11 @@ for typ in type:
                 #print(df)
 
                 l=list(set(np.where(pd.isnull(df))[0]))    #list of indecies for empty rows
-                print l
+                #print l
                 l=sorted(l)
-                print l
+                #print l
                 Len = len(list(set(np.where(pd.isnull(df))[0])))+1
-                print Len
+                #print Len
 
                 z=df
                 s = pd.DataFrame()
@@ -176,48 +181,57 @@ for typ in type:
 
                 #print (s.shape[1])
 
-                path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\' + typ + '\\p' + str(person)
 
-                if not os.path.exists(path):
-                    os.makedirs(path)
 
-                os.chdir(path)
+                req_path = org_path + "\\dataset\\modified\\"+typ+"\\p"+str(person)
+
+                if not os.path.exists(req_path):
+                    os.makedirs(req_path)
+
+                os.chdir(req_path)
 
                 if ( (s.shape[1]-Len+1) > no_sequences):
                     no_sequences= (s.shape[1]-Len+1)
-                    print name
+                    #print name
                     no_features=s.shape[0]
-
+                if(np.isinf(s).sum().sum()>0):
+                    print ("============================================================================================")
+                    print("heeeeeeeeeeeeeeeeeeeeereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+                    print person
+                    print name
+                    print (np.isinf(s).sum().sum())
+                    print ("============================================================================================")
                 s.to_csv(name, sep=',', index=True, header=True)
+                req_path = org_path + "\\dataset\\modified\\"+typ+"\\classification\\p"+str(person)
 
-                path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\' + typ + '\\classification\\p' + str(person)
-
-                if not os.path.exists(path):
-                    os.makedirs(path)
-                os.chdir(path)
+                if not os.path.exists(req_path):
+                    os.makedirs(req_path)
+                os.chdir(req_path)
                 cls=name.split('_')[0]
                 cls=cls.split('.')[0]
-                print("class name:"+cls)
+                #print("class name:"+cls)
                 with open("y"+str(person)+".csv", "ab") as fp:
                     wr = csv.writer(fp, dialect='excel')
                     wr.writerow([cls])
-                path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\orginial\\' + typ + '\\p' + str(person)
-                os.chdir(path)
+
+                req_path = org_path + "\\dataset\\original\\"+typ+"\\p"+str(person)
+                os.chdir(req_path)
 
 
 
 print ("number of samples: ",no_gestures)
 print ("maximum number of sequences: ",no_sequences)
 print ("number of features: ",no_features)
+print ("number of dynamic features: ",no_dynamic_files)
 
-parameters=([no_gestures,no_sequences,no_features])
-path = 'C:\\Users\\vegon\\Desktop\\data_handler_v2\\dataset\\modified\\'
-os.chdir(path)
+parameters=([no_gestures,no_sequences,no_features,no_dynamic_files])
+req_path = org_path + "\\dataset\\modified\\"
+os.chdir(req_path)
 
 with open("parameters" + ".csv", "w") as fp:
     wr = csv.writer(fp, dialect='excel')
     wr.writerow(parameters)
-
+os.chdir(org_path)
 
 
 '''
